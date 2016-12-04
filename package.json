@@ -31,6 +31,7 @@
     "react": "",
     "react-dom": "",
     "redux": "",
+    "remap-istanbul": "",
     "rollup": "",
     "tape": ""
   }

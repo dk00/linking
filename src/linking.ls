@@ -14,10 +14,12 @@ function select-next select, props, hold
   do
     next = select @store.getState!, props
     @selected = next
-    @setState empty
+    @changed = true
+    @setState empty unless hold
 
 function chain create-store, select, merge, render
   hooks = render: ->
+    @changed = false
     render merge @selected, @store.dispatch, @props
   if create-store
     hooks.componentWillMount = ->
@@ -34,6 +36,11 @@ function chain create-store, select, merge, render
         select-next.call @, select, @props
   do
     hooks.getChildContext = -> @source
+
+  if select?length > 1
+    hooks.componentWillReceiveProps = ->
+      select-next.call @, select, it, true
+    hooks.shouldComponentUpdate = -> @changed
   hooks
 
 function context-types {any}
