@@ -1,0 +1,37 @@
+{
+  "name": "linking",
+  "version": "0.0.1",
+  "description": "Alternaive Redux bindings for React",
+  "main": "dist/linking.js",
+  "jsnext:main": "dist/linking.js",
+  "directories": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "gulp coverage",
+    "prepublish": "gulp dist"
+  },
+  "repository": "dk00/linking",
+  "keywords": [
+    "redux",
+    "pure",
+    "functional",
+    "react",
+    "reactjs"
+  ],
+  "author": "dk00 <dk00@users.noreply.github.com>",
+  "license": "Unlicense",
+  "bugs": "https://github.com/dk00/linking/issues",
+  "homepage": "https://github.com/dk00/linking#readme",
+  "devDependencies": {
+    "gulp": "",
+    "istanbul": "",
+    "jsdom": "",
+    "livescript": "",
+    "react": "",
+    "react-dom": "",
+    "redux": "",
+    "rollup": "",
+    "tape": ""
+  }
+}
