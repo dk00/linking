@@ -15,7 +15,9 @@ gulp.task \dist ->
     .then ->
       {map} = it.generate Object.assign {} target, config
       writeFileSync dest + \.map
-      , (that <<< file: dest.split \/ .[*-1])toString! if map
+      #Remove sourcesContent to prevent remap messing up paths
+      #And add the missing file name
+      , (that <<< content: void file: dest.split \/ .[*-1])toString! if map
     .catch ->
       return Promise.reject that if it.message
       it

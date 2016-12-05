@@ -1,5 +1,11 @@
 empty = {}
 function default-merge => it
+function flat-diff a, b
+  return false if a == b
+  return true if typeof a != \object or typeof b != \object
+  keys = Object.keys a
+  return true if keys.length != Object.keys b .length
+  keys.some -> a[it] != b[it]
 
 function onChange listeners, update
   level = listeners
@@ -11,8 +17,7 @@ function notify listeners
     update!
 
 function select-next select, props, hold
-  do
-    next = select @store.getState!, props
+  if flat-diff @selected, next = select @store.getState!, props
     @selected = next
     @changed = true
     @setState empty unless hold
