@@ -6,6 +6,7 @@ function flat-diff a, b
   keys = Object.keys a
   return true if keys.length != Object.keys b .length
   keys.some -> a[it] != b[it]
+function name => (it && (it.display-name || it.name || 'no name')) || \none
 
 function onChange listeners, update
   level = listeners
@@ -19,13 +20,16 @@ function notify listeners
 function select-next select, props, hold
   if flat-diff @selected, next = select @store.getState!, props
     @selected = next
-    @changed = true
     @setState empty unless hold
+    @changed = true
 
 function chain create-store, select, merge, render
-  hooks = render: ->
-    @changed = false
-    render merge @selected, @store.dispatch, @props
+  hooks =
+    display-name: "linking #{name render}: " + [select, merge]map name
+    render: ->
+      @changed = false
+      render merge @selected, @store.dispatch, @props
+
   if create-store
     hooks.componentWillMount = ->
       listeners = new Set

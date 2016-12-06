@@ -17,7 +17,7 @@ gulp.task \dist ->
       writeFileSync dest + \.map
       #Remove sourcesContent to prevent remap messing up paths
       #And add the missing file name
-      , (that <<< content: void file: dest.split \/ .[*-1])toString! if map
+      , (that <<< sourcesContent: void file: dest.split \/ .[*-1])toString! if map
     .catch ->
       return Promise.reject that if it.message
       it
@@ -25,7 +25,8 @@ gulp.task \dist ->
 gulp.task \coverage <[dist]> ->
   require! \child_process : spawnSync: spawn
   require! \remap-istanbul : remap
-  spawn \./node_modules/.bin/istanbul <[cover lsc test/index]> stdio: \inherit
+  {status} = spawn \./node_modules/.bin/istanbul <[cover lsc test/index]> stdio: \inherit
+  throw \test if status != 0
 
   console.info 'Remap coverage files'
   remap \coverage/coverage.json output =
