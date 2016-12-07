@@ -116,9 +116,26 @@ function cut-select t
     t.equal count, 2 desc
     t
 
+function unmount-unsubscribe t
+  desc = 'stop notifying unmounted components'
+
+  last-value = 0
+  function child => h \div
+  link-child = link child, ->
+    last-value := it.count
+    value: (it.count || 0) + 1
+
+  function wrap props
+    h \div,, if props.value < 4 then link-child!
+  linked = link wrap, -> value: it.count
+
+  sample-render linked .then ->
+    t.equal last-value, 3 desc
+    t
+
 function test t
   add-context t .then pass-state .then listen-changes .then prop-changes
-  .then cut-select
+  .then cut-select .then unmount-unsubscribe
   .then -> t.end!
   .catch -> console.log it
 

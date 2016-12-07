@@ -15,7 +15,7 @@ function onChange listeners, update
 
 function notify listeners
   Array.from listeners.keys! .map (update) ->
-    update!
+    update! if listeners.has update
 
 function select-next select, props, hold
   if flat-diff @selected, next = select @store.getState!, props
@@ -43,6 +43,8 @@ function chain create-store, select, merge, render
     hooks.componentDidMount = ->
       @off = onChange @context.listeners, ~>
         select-next.call @, select, @props
+    hooks.componentWillUnmount = -> @off!
+
   do
     hooks.getChildContext = -> @source
 
