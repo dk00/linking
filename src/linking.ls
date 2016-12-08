@@ -20,33 +20,31 @@ function notify listeners
 function select-next select, props, hold
   if flat-diff @selected, next = select @store.getState!, props
     @selected = next
-    @setState empty unless hold
     @changed = true
+    @setState empty unless hold
+    true
 
 function chain create-store, select, merge, render
-  hooks =
-    display-name: "linking #{name render}: " + [select, merge]map name
-    render: ->
-      @changed = false
-      render merge @selected, @store.dispatch, @props
-
-  if create-store
-    hooks.componentWillMount = ->
+  hooks = if create-store
+    componentWillMount: ->
       listeners = new Set
       @resolve = notify.bind void listeners
       @store = create-store @resolve
       @source = {@store, listeners}
+    getChildContext: -> @source
   else
-    hooks.componentWillMount = ->
+    componentWillMount: ->
       @store = @context.store
       @selected = select @store.getState!, @props
-    hooks.componentDidMount = ->
+    componentDidMount: ->
       @off = onChange @context.listeners, ~>
         select-next.call @, select, @props
-    hooks.componentWillUnmount = -> @off!
-
-  do
-    hooks.getChildContext = -> @source
+    componentWillUnmount: -> @off!
+  <<<
+    display-name: "linking #{name render}: " + [select, merge]map name
+    render: ->
+      @changed = false
+      render merge @selected, @store.dispatch, @props
 
   if select?length > 1
     hooks.componentWillReceiveProps = ->
@@ -54,15 +52,17 @@ function chain create-store, select, merge, render
     hooks.shouldComponentUpdate = -> @changed
   hooks
 
-function context-types {any}
-  types = store: any, listeners: any
-  contextTypes: types, childContextTypes: types
-
 function link {createElement: h}: React
-  types = context-types React.PropTypes
-  render, select, merge=default-merge, create-store, options <- (wrap =)
   do
-    return h.bind void React.createClass Object.assign {} types,\
-    chain create-store, select, merge, render
+    that = React.PropTypes.any
+    all = store: that, listeners: that
+    origin = childContextTypes: all
+    sub = contextTypes: all
+
+  render, select, merge=default-merge, create-store, options <- (wrap =)
+
+  types = if create-store then origin else sub
+  linking = chain create-store, select, merge, render
+  h.bind void React.createClass Object.assign {} types, linking
 
 ``export {link, link as default}``

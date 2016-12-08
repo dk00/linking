@@ -33,9 +33,12 @@ function sample-render child, props
     render = link root,,, create-store
     reactDOM.render render!, document.createElement \div
   .then ->
-    [1 3 7]forEach ->
-      store.dispatch type: \set data: key: \count value: it
-    [store]
+    [1 3 7]reduce (previous, value) ->
+      previous .then ->
+        store.dispatch type: \set data: key: \count value: value
+      .then -> new Promise (resolve) -> setTimeout resolve, 0
+    , Promise.resolve!
+    .then -> [store]
 
 function add-context t
   desc = 'add the store to the child context'
@@ -47,7 +50,6 @@ function add-context t
 
   sample-render (-> h child) .then ([store]) ->
     t.equal context-store, store, desc
-    t
 
 function pass-state t
   desc = 'pass state and props to the given render function'
@@ -64,7 +66,6 @@ function pass-state t
 
   sample-render linked, value: 'prop value' .then ->
     t.equal passed, expected, desc
-    t
 
 function listen-changes t
   desc = 'subscribe pure function components to the store changes'
@@ -78,9 +79,7 @@ function listen-changes t
   linked = link child, select
 
   sample-render linked .then ->
-    res = Object.keys result .join ' '
-    t.equal res, expected, desc
-    t
+    t.equal (Object.keys result .join ' '), expected, desc
 
 function prop-changes t
   desc =\
@@ -100,7 +99,6 @@ function prop-changes t
   sample-render linked .then ->
     res = Object.keys result .join ' '
     t.equal res, expected, desc
-    t
 
 function cut-select t
   desc =\
@@ -114,7 +112,6 @@ function cut-select t
 
   sample-render linked .then ->
     t.equal count, 2 desc
-    t
 
 function unmount-unsubscribe t
   desc = 'stop notifying unmounted components'
@@ -131,11 +128,13 @@ function unmount-unsubscribe t
 
   sample-render linked .then ->
     t.equal last-value, 3 desc
-    t
 
 function test t
-  add-context t .then pass-state .then listen-changes .then prop-changes
-  .then cut-select .then unmount-unsubscribe
+  cases = [add-context, pass-state, listen-changes, prop-changes
+  unmount-unsubscribe, cut-select]
+
+  cases.reduce (previous, run) -> previous.then -> run t
+  , Promise.resolve!
   .then -> t.end!
   .catch -> console.log it
 
