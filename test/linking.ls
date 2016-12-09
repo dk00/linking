@@ -108,10 +108,12 @@ function cut-select t
   function child
     count++
     h \div
-  linked = link child, ({count}) -> value: ((count || 0) + 1)%2
+  lower = link child, ({count}) -> value: ((count || 0) + 1)%2
 
-  sample-render linked .then ->
-    t.equal count, 2 desc
+  function upper => h \div,, lower!
+  linked = link upper, ({count}) -> value: count + 2
+
+  sample-render linked .then -> t.equal count, 2 desc
 
 function unmount-unsubscribe t
   desc = 'stop notifying unmounted components'
@@ -129,9 +131,26 @@ function unmount-unsubscribe t
   sample-render linked .then ->
     t.equal last-value, 3 desc
 
+function ordered-notify t
+  desc = 'notify higher hierarchy components prior to lower'
+
+  sequence = []
+  expected = 'higher lower 'repeat 4 .trim!
+  function child => h \div
+  function select which => ->
+    sequence.push which
+    value: (it.count <? 3) + which
+
+  lower = link child, select \lower
+  higher = link -> h \div,, lower!
+  , select \higher
+
+  sample-render higher .then ->
+    t.equal (sequence.join ' '), expected, desc
+
 function test t
   cases = [add-context, pass-state, listen-changes, prop-changes
-  unmount-unsubscribe, cut-select]
+  unmount-unsubscribe, cut-select, ordered-notify]
 
   cases.reduce (previous, run) -> previous.then -> run t
   , Promise.resolve!

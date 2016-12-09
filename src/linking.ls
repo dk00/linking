@@ -9,55 +9,49 @@ function flat-diff a, b
 function name => (it && (it.display-name || it.name || 'no name')) || \none
 
 function onChange listeners, update
-  level = listeners
-    ..add update
-  level.delete.bind level, update
+  listeners.add update
+  listeners.delete.bind listeners, update
 
-function notify listeners
-  Array.from listeners.keys! .map (update) ->
-    update! if listeners.has update
+!function notify listeners
+  Array.from listeners.keys! .map (update) -> update!
 
-function select-next select, props, hold
+function handle-change select, props
   if flat-diff @selected, next = select @store.getState!, props
     @selected = next
     @changed = true
-    @setState empty unless hold
-    true
+  else notify @source.listeners
 
 function chain create-store, select, merge, render
-  hooks = if create-store
+  if create-store
     componentWillMount: ->
       listeners = new Set
       @resolve = notify.bind void listeners
       @store = create-store @resolve
       @source = {@store, listeners}
-    getChildContext: -> @source
   else
     componentWillMount: ->
       @store = @context.store
       @selected = select @store.getState!, @props
+      @source = listeners: new Set
     componentDidMount: ->
       @off = onChange @context.listeners, ~>
-        select-next.call @, select, @props
+        @setState empty if handle-change.call @, select, @props
     componentWillUnmount: -> @off!
   <<<
     display-name: "linking #{name render}: " + [select, merge]map name
     render: ->
       @changed = false
       render merge @selected, @store.dispatch, @props
-
-  if select?length > 1
-    hooks.componentWillReceiveProps = ->
-      select-next.call @, select, it, true
-    hooks.shouldComponentUpdate = -> @changed
-  hooks
+    getChildContext: -> @source
+    componentWillReceiveProps: -> handle-change.call @, select, it
+    shouldComponentUpdate: -> @changed
 
 function link {createElement: h}: React
   do
     that = React.PropTypes.any
     all = store: that, listeners: that
     origin = childContextTypes: all
-    sub = contextTypes: all
+    sub = contextTypes: all, childContextTypes: listeners: that
 
   render, select, merge=default-merge, create-store, options <- (wrap =)
 
