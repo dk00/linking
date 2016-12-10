@@ -24,14 +24,13 @@ function sample-render child, props
     store.subscribe onChange
     store
 
-  new Promise (resolve) ->
-    function tail
-      resolve!
-      h \div,, \tail
+  new Promise (resolve, reject) ->
+    function tail => h \div,, \tail
     function root => h \div,, (child props), tail!
 
     render = link root,,, create-store
     reactDOM.render render!, document.createElement \div
+    resolve!
   .then ->
     [1 3 7]reduce (previous, value) ->
       previous .then ->
@@ -164,9 +163,23 @@ function merge-props t
   sample-render linked .then ->
     t.equal (received.join ' '), expected, desc
 
+function no-subscription t
+  desc = 'handle link without select funciton specified'
+
+  rendered = false
+  nested = link ->
+    rendered := true
+    h \div
+  ,, (,, props) -> props
+
+  function render => h \div,, nested it
+  linked = link render, -> value: it.count
+  sample-render linked .then -> t.ok rendered, desc
+
 function test t
   cases = [add-context, pass-state, listen-changes, prop-changes
-  unmount-unsubscribe, cut-select, ordered-notify, merge-props]
+  unmount-unsubscribe, cut-select, ordered-notify, merge-props
+  no-subscription]
 
   cases.reduce (previous, run) -> previous.then -> run t
   , Promise.resolve!

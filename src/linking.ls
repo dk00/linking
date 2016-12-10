@@ -28,7 +28,7 @@ function chain create-store, select, merge, render
       @resolve = notify.bind void listeners
       @store = create-store @resolve
       @source = {@store, listeners}
-  else
+  else if select
     componentWillMount: ->
       @store = @context.store
       @selected = select @store.getState!, @props
@@ -37,6 +37,10 @@ function chain create-store, select, merge, render
       @off = onChange @context.listeners, ~>
         @setState empty if handle-change.call @, select, @props
     componentWillUnmount: -> @off!
+  else
+    componentWillMount: ->
+      @store = @context.store
+      @selected = @store.getState!
   <<<
     display-name: "linking #{name render}: " + [select, merge]map name
     render: ->
@@ -44,7 +48,7 @@ function chain create-store, select, merge, render
       render merge @selected, @store.dispatch, @props
     getChildContext: -> @source
     componentWillReceiveProps: (next-props) ->
-      handle-change.call @, select, next-props
+      handle-change.call @, that, next-props if select
       @changed ||= merge.length > 2 && flat-diff next-props, @props
     shouldComponentUpdate: -> @changed
 
