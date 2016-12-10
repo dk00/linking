@@ -148,9 +148,25 @@ function ordered-notify t
   sample-render higher .then ->
     t.equal (sequence.join ' '), expected, desc
 
+function merge-props t
+  desc = 'call props-dependent merge when props are changed'
+
+  expected = '1 3'
+  received = []
+  function nested => h \div
+  child = link nested, -> value: \fixed
+  , (,, props) ->
+    received.push that if props.value
+    props
+
+  function top => h \div,, child value: it.value % 4
+  linked = link top, -> value: it.count
+  sample-render linked .then ->
+    t.equal (received.join ' '), expected, desc
+
 function test t
   cases = [add-context, pass-state, listen-changes, prop-changes
-  unmount-unsubscribe, cut-select, ordered-notify]
+  unmount-unsubscribe, cut-select, ordered-notify, merge-props]
 
   cases.reduce (previous, run) -> previous.then -> run t
   , Promise.resolve!

@@ -43,7 +43,9 @@ function chain create-store, select, merge, render
       @changed = false
       render merge @selected, @store.dispatch, @props
     getChildContext: -> @source
-    componentWillReceiveProps: -> handle-change.call @, select, it
+    componentWillReceiveProps: (next-props) ->
+      handle-change.call @, select, next-props
+      @changed ||= merge.length > 2 && flat-diff next-props, @props
     shouldComponentUpdate: -> @changed
 
 function link {createElement: h}: React
