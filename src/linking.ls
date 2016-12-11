@@ -55,14 +55,18 @@ function chain create-store, select, merge, render
 function link {createElement: h}: React
   do
     that = React.PropTypes.any
-    all = store: that, listeners: that
-    origin = childContextTypes: all
-    sub = contextTypes: all, childContextTypes: listeners: that
+    context-types = store: that, listeners: that
+    origin = childContextTypes: context-types
+    sub = contextTypes: context-types, childContextTypes: listeners: that
 
   render, select, merge=default-merge, create-store, options <- (wrap =)
-
-  types = if create-store then origin else sub
-  linking = chain create-store, select, merge, render
-  h.bind void React.createClass Object.assign {} types, linking
+  h.bind void if !select && !create-store && merge.length < 3
+    (props, {store}) ->
+      render merge store.getState!, store.dispatch, props
+    <<< contextTypes: context-types, display-name: render.name
+  else
+    types = if create-store then origin else sub
+    linking = chain create-store, select, merge, render
+    React.createClass Object.assign {} types, linking
 
 ``export {link, link as default}``

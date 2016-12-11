@@ -176,10 +176,22 @@ function no-subscription t
   linked = link render, -> value: it.count
   sample-render linked .then -> t.ok rendered, desc
 
+function simple-wrapper t
+  desc = 'pass state & dispatch to no-hook components'
+
+  expected = 'string function'
+  result = []
+  nested = link -> h \div
+  ,, (state, dispatch) ->
+    result := [state.value, dispatch]map -> typeof it
+  linked = link -> h \div,, nested!
+  sample-render linked .then ->
+    t.equal (result.join ' '), expected, desc
+
 function test t
   cases = [add-context, pass-state, listen-changes, prop-changes
   unmount-unsubscribe, cut-select, ordered-notify, merge-props
-  no-subscription]
+  no-subscription, simple-wrapper]
 
   cases.reduce (previous, run) -> previous.then -> run t
   , Promise.resolve!
