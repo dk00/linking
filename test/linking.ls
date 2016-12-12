@@ -48,7 +48,7 @@ function add-context t
   child.contextTypes = store: react.PropTypes.any
 
   sample-render (-> h child) .then ([store]) ->
-    t.equal context-store, store, desc
+    t.equal context-store.getState, store.getState, desc
 
 function pass-state t
   desc = 'pass state and props to the given render function'
