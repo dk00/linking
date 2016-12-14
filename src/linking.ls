@@ -17,18 +17,18 @@ function handle-change select, props
     @changed = true
   else notify @source.store.listeners
 
-function mount select, create-store
+function mount select, store
   listeners = new Set
   function subscribe update
     listeners.add update
     listeners.delete.bind listeners, update
-  @store = (create-store? ->) or @context.store
+  @store = store or @context.store
   @source = store: Object.assign {} @store, {subscribe, listeners}
   @selected = select @store.getState!, @props
 
-function chain create-store, select, merge, render
-  if create-store || select != pass
-    componentWillMount: -> mount.call @, select, create-store
+function chain store, select, merge, render
+  if store || select != pass
+    componentWillMount: -> mount.call @, select, store
     componentDidMount: ->
       @off = @store.subscribe ~>
         @setState empty if handle-change.call @, select, @props
@@ -42,7 +42,7 @@ function chain create-store, select, merge, render
     render: ->
       @changed = false
       render merge @selected, @store.dispatch, @props
-    getChildContext: if create-store || select != pass then -> @source
+    getChildContext: if store || select != pass then -> @source
     componentWillReceiveProps: (next-props) ->
       handle-change.call @, select, next-props if select != pass
       @changed ||= merge.length > 2 && flat-diff next-props, @props
@@ -57,14 +57,14 @@ function link {createElement: h}: React
     contextTypes: context-types, childContextTypes: if it.getChildContext
       context-types
 
-  render, select=pass, merge=pass, create-store, options <- (wrap =)
-  h.bind void if select == pass && !create-store && merge.length < 3
+  render, select=pass, merge=pass, store, options <- (wrap =)
+  h.bind void if select == pass && !store && merge.length < 3
     (props, {store}) ->
       render merge store.getState!, store.dispatch, props
     <<< contextTypes: context-types, display-name: render.name
   else
-    linking = chain create-store, select, merge, render
-    types = if create-store then origin else nested linking
+    linking = chain store, select, merge, render
+    types = if store then origin else nested linking
     React.createClass Object.assign {} types, linking
 
 ``export {link, link as default}``

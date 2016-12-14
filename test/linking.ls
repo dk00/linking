@@ -18,17 +18,13 @@ function reduce state={} {type, data} => switch type
   | _ => state
 
 function sample-render child, props
-  store = void
-  function create-store onChange
-    store := redux.createStore reduce, value: 'state value'
-    store.subscribe onChange
-    store
+  store = redux.createStore reduce, value: 'state value'
 
   new Promise (resolve, reject) ->
     function tail => h \div,, \tail
     function root => h \div,, (child props), tail!
 
-    render = link root,,, create-store
+    render = link root,,, store
     reactDOM.render render!, document.createElement \div
     resolve!
   .then ->

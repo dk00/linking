@@ -10,14 +10,13 @@ Alternative Redux bindings for React.
 
 ## API
 
-### `link(React)`: `(render[, select][, merge][, createStore]) => linkedRender`
+### `link(React)`: `(render[, select][, merge][, store]) => linkedRender`
 
 Link a render function to a store. Return a linked render function.
 
 #### Arguments
 
-- `createStore(onChange): store`: `onChange` should be called on store state change.
-  Returned store is available to linked render functions in the component hierarchy below.
+- `store`: Redux compatible store, available to linked render functions in the component hierarchy below.
 
 - `select(state[, ownProps]): selectedProps`: Called when store state changes.
   Re-rendering is skipped if result of this function is shallowly equal to previous.
