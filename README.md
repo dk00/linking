@@ -44,10 +44,7 @@ function Provider({store, children}) {
   function seed() {
     return element
   }
-  const render = link(react)(seed, void 8, void 8, onChange => {
-    store.subscribe(onChange)
-    return store
-  })
+  const render = link(react)(seed, void 8, void 8, store)
   return render()
 }
 
@@ -85,12 +82,7 @@ export {Provider, connect}
 ##### Inject store for child elements
 
 ```js
-function createStore(onChange) {
-  const store = Redux.createStore(reduce)
-  const unsubscribe = store.subscribe(onChange)
-}
-
-link(React)(renderRoot, null, null, createStore)
+link(React)(renderRoot, null, null, store)
 ```
 
 ##### Inject dispatch and todos
