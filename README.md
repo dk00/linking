@@ -10,13 +10,13 @@ Alternative Redux bindings for React.
 
 ## API
 
-### `link(React)`: `(render[, select][, merge][, store]) => linkedRender`
+### `link(React)`: `(render[, select][, merge][, receiveStore]) => linkedRender`
 
 Link a render function to a store. Return a linked render function.
 
 #### Arguments
 
-- `store`: Redux compatible store, available to linked render functions in the component hierarchy below.
+- `receiveStore`: If `true`, the store provided in `props` (`this.props.store`) will be used.
 
 - `select(state[, ownProps]): selectedProps`: Called when store state changes.
   Re-rendering is skipped if result of this function is shallowly equal to previous.
@@ -44,8 +44,8 @@ function Provider({store, children}) {
   function seed() {
     return element
   }
-  const render = link(react)(seed, void 8, void 8, store)
-  return render()
+  const render = link(react)(seed, void 8, void 8, true)
+  return render({store})
 }
 
 function defaultDispatch(dispatch) {

@@ -5,11 +5,6 @@ require! \react-dom : reactDOM, \../dist/linking.cjs : {link: link-base}
 function link => (link-base react) ...
 function pass => it
 
-function render-with root, store
-  render = link root,,, (onChange) ->
-    store.subscribe onChange
-    store
-
 sample-state = value: foo: \bar
 sample-store = dispatch: pass, subscribe: pass, getState: -> sample-state
 
@@ -24,8 +19,8 @@ function sample-render child, props
     function tail => h \div,, \tail
     function root => h \div,, (child props), tail!
 
-    render = link root,,, store
-    reactDOM.render render!, document.createElement \div
+    render = link root,,, true
+    reactDOM.render (render {store}), document.createElement \div
     resolve!
   .then ->
     [1 3 7]reduce (previous, value) ->

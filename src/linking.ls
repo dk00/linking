@@ -15,20 +15,20 @@ function handle-change select, props
   if flat-diff @selected, next = select @store.getState!, props
     @selected = next
     @changed = true
-  else notify @source.store.listeners
+  else notify @listeners
 
-function mount select, store
-  listeners = new Set
+function mount select
+  @listeners = listeners = new Set
   function subscribe update
     listeners.add update
     listeners.delete.bind listeners, update
-  @store = store or @context.store
-  @source = store: Object.assign {} @store, {subscribe, listeners}
+  @store = @props.store or @context.store
+  @source = store: Object.assign {} @store, {subscribe}
   @selected = select @store.getState!, @props
 
 function chain store, select, merge, render
   if store || select != pass
-    componentWillMount: -> mount.call @, select, store
+    componentWillMount: -> mount.call @, select
     componentDidMount: ->
       @off = @store.subscribe ~>
         @setState empty if handle-change.call @, select, @props

@@ -1,26 +1,29 @@
 require! gulp
+require! fs : {writeFileSync} rollup: {rollup} \./rollup.config : config
 output-path = \dist
 
+#Remove sourcesContent to prevent remap messing up paths
+#And add the missing file name
+function fix-map map, dest
+  (map <<< sourcesContent: void file: dest.split \/ .[*-1])toString!
+
+function build {dest}: target
+  rollup config .then (bundle) ->
+    bundle.write Object.assign {} config, target .then -> bundle
+  .then ->
+    {map} = it.generate Object.assign {} config, target
+    writeFileSync dest + \.map fix-map that, dest if map
+  .catch ->
+    return Promise.reject that if it.message
+    it
+
 gulp.task \dist ->
-  require! fs : {writeFileSync} rollup: {rollup} \./rollup.config : config
   name = "dist/#{config.module-name}"
   targets =
     * dest: "#name.js" format: \umd source-map: true
     * dest: "#name.cjs.js" format: \cjs source-map: true
     * dest: "#name.es.js"
-
-  Promise.all targets.map ({dest}: target) ->
-    rollup Object.assign config .then (bundle) ->
-      bundle.write Object.assign {} target, config .then -> bundle
-    .then ->
-      {map} = it.generate Object.assign {} target, config
-      writeFileSync dest + \.map
-      #Remove sourcesContent to prevent remap messing up paths
-      #And add the missing file name
-      , (that <<< sourcesContent: void file: dest.split \/ .[*-1])toString! if map
-    .catch ->
-      return Promise.reject that if it.message
-      it
+  Promise.all targets.map build
 
 gulp.task \coverage <[dist]> ->
   require! \child_process : spawnSync: spawn
