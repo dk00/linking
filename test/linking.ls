@@ -19,7 +19,7 @@ function sample-render child, props
     function tail => h \div,, \tail
     function root => h \div,, (child props), tail!
 
-    render = link root,,, true
+    render = link root
     reactDOM.render (render {store}), document.createElement \div
     resolve!
   .then ->

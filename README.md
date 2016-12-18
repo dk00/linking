@@ -10,13 +10,12 @@ Alternative Redux bindings for React.
 
 ## API
 
-### `link(React)`: `(render[, select][, merge][, receiveStore]) => linkedRender`
+### `link(React)`: `(render[, select][, merge]) => linkedRender`
 
 Link a render function to a store. Return a linked render function.
+`props.store` will be used if `store` is passed to the returned function, other components use the store provided by their ancestor.
 
 #### Arguments
-
-- `receiveStore`: If `true`, the store provided in `props` (`this.props.store`) will be used.
 
 - `select(state[, ownProps]): selectedProps`: Called when store state changes.
   Re-rendering is skipped if result of this function is shallowly equal to previous.
@@ -44,7 +43,7 @@ function Provider({store, children}) {
   function seed() {
     return element
   }
-  const render = link(react)(seed, void 8, void 8, true)
+  const render = link(react)(seed)
   return render({store})
 }
 
@@ -82,7 +81,8 @@ export {Provider, connect}
 ##### Inject store for child elements
 
 ```js
-link(React)(renderRoot, null, null, store)
+const root = link(React)(renderRoot)
+ReactDOM.render(root({store}), document.querySelector('#root'))
 ```
 
 ##### Inject dispatch and todos
@@ -96,5 +96,5 @@ function merge(state, dispatch) {
   return Object.assign({dispatch}, state)
 }
 
-export default link(React)(mapStateToProps, merge)(todoApp)
+export default link(React)(todoApp, mapStateToProps, merge)
 ```

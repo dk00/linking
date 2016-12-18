@@ -17,54 +17,52 @@ function handle-change select, props
     @changed = true
   else notify @listeners
 
-function mount select
-  @listeners = listeners = new Set
+function mount select, merge
+  @store = @props.store || @context.store
+  @selected = select @store.getState!, @props
+  @getChildContext = -> @source if select != pass || @props.store
+  if select == pass
+    @source = @{store}
+    return
+
+  listeners = @listeners = new Set
   function subscribe update
     listeners.add update
     listeners.delete.bind listeners, update
-  @store = @props.store or @context.store
-  @source = store: Object.assign {} @store, {subscribe}
-  @selected = select @store.getState!, @props
 
-function chain store, select, merge, render
-  if store || select != pass
-    componentWillMount: -> mount.call @, select
-    componentDidMount: ->
-      @off = @store.subscribe ~>
-        @setState empty if handle-change.call @, select, @props
-    componentWillUnmount: -> @off!
-  else
-    componentWillMount: ->
-      @store = @context.store
-      @selected = @store.getState!
-  <<<
+  @source = store: Object.assign {} @store, {subscribe}
+
+function listen-store select
+  componentDidMount: -> @off = @store.subscribe ~>
+    @setState empty if handle-change.call @, select, @props
+  componentWillUnmount: -> @off!
+
+function handle-props select, merge
+  componentWillReceiveProps: (next-props) ->
+    handle-change.call @, select, next-props if select != pass
+    @changed ||= merge.length > 2 && flat-diff next-props, @props
+  shouldComponentUpdate: -> @changed
+
+function chain select, merge, render
+  hooks = if select == pass then {} else listen-store select
+  if select != pass || merge.length > 2
+    Object.assign hooks, handle-props select, merge
+
+  hooks <<<
     display-name: "linking #{name render}: " + [select, merge]map name
+    componentWillMount: -> mount.call @, select, merge
     render: ->
       @changed = false
       render merge @selected, @store.dispatch, @props
-    getChildContext: if store || select != pass then -> @source
-    componentWillReceiveProps: (next-props) ->
-      handle-change.call @, select, next-props if select != pass
-      @changed ||= merge.length > 2 && flat-diff next-props, @props
-    shouldComponentUpdate: -> @changed
 
 function link {createElement: h}: React
   do
     that = React.PropTypes.any
     context-types = store: that
-    origin = childContextTypes: context-types
-  function nested
-    contextTypes: context-types, childContextTypes: if it.getChildContext
-      context-types
+    types = contextTypes: context-types, childContextTypes: context-types
 
-  render, select=pass, merge=pass, store, options <- (wrap =)
-  h.bind void if select == pass && !store && merge.length < 3
-    (props, {store}) ->
-      render merge store.getState!, store.dispatch, props
-    <<< contextTypes: context-types, display-name: render.name
-  else
-    linking = chain store, select, merge, render
-    types = if store then origin else nested linking
-    React.createClass Object.assign {} types, linking
+  render, select=pass, merge=pass <- (wrap =)
+  linking = chain select, merge, render
+  h.bind void React.createClass Object.assign {} types, linking
 
 ``export {link, link as default}``
