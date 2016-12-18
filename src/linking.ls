@@ -17,7 +17,7 @@ function handle-change select, props
     @changed = true
   else notify @listeners
 
-function mount select, merge
+function mount select
   @store = @props.store || @context.store
   @selected = select @store.getState!, @props
   @getChildContext = -> @source if select != pass || @props.store
@@ -50,7 +50,7 @@ function chain select, merge, render
 
   hooks <<<
     display-name: "linking #{name render}: " + [select, merge]map name
-    componentWillMount: -> mount.call @, select, merge
+    componentWillMount: -> mount.call @, select
     render: ->
       @changed = false
       render merge @selected, @store.dispatch, @props
