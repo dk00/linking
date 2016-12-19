@@ -18,16 +18,16 @@ function build {dest}: target
     it
 
 gulp.task \dist ->
-  name = "dist/#{config.module-name}"
+  name = config.module-name
   targets =
-    * dest: "#name.js" format: \umd source-map: true
-    * dest: "#name.cjs.js" format: \cjs source-map: true
-    * dest: "#name.es.js"
+    * dest: "dist/#name.js" format: \umd source-map: true
+    * dest: "dist/#name.cjs.js" format: \cjs source-map: true
+    * dest: "es/#name.js"
   Promise.all targets.map build
 
 gulp.task \coverage <[dist]> ->
   require! \child_process : spawnSync: spawn
-  require! \remap-istanbul : remap
+  require! \remap-istanbul : default: remap
   {status} = spawn \./node_modules/.bin/istanbul <[cover lsc test/index]> stdio: \inherit
   throw \test if status != 0
 

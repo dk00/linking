@@ -3,9 +3,11 @@
   "version": "0.0.1",
   "description": "Alternaive Redux bindings for React",
   "main": "dist/linking.js",
-  "jsnext:main": "dist/linking.js",
+  "module": "es/linking.js",
+  "jsnext:main": "es/linking.js",
   "directories": [
-    "dist"
+    "dist",
+    "es"
   ],
   "scripts": {
     "test": "gulp coverage",
@@ -31,7 +33,7 @@
     "react": "",
     "react-dom": "",
     "redux": "",
-    "remap-istanbul": "< 0.8.1 || > 0.8.1",
+    "remap-istanbul": "> 0.8.1",
     "rollup": "",
     "tape": ""
   }
