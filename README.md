@@ -6,6 +6,7 @@ Alternative Redux bindings for React.
 
 [![build status](https://travis-ci.org/dk00/linking.svg)](https://travis-ci.org/dk00/linking)
 [![coverage](https://codecov.io/gh/dk00/linking/branch/master/graph/badge.svg)](https://codecov.io/gh/dk00/linking)
+[![npm](https://img.shields.io/npm/v/linking.svg)](https://www.npmjs.com/package/linking)
 [![dependencies](https://david-dm.org/dk00/linking/status.svg)](https://david-dm.org/dk00/linking)
 
 ## API
