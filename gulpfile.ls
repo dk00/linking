@@ -27,7 +27,7 @@ gulp.task \dist ->
 
 gulp.task \coverage <[dist]> ->
   require! \child_process : spawnSync: spawn
-  require! \remap-istanbul : default: remap
+  require! \remap-istanbul : remap
   {status} = spawn \./node_modules/.bin/istanbul <[cover lsc test/index]> stdio: \inherit
   throw \test if status != 0
 
