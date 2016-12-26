@@ -1,11 +1,11 @@
 {
   "name": "linking",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Alternaive Redux bindings for React",
   "main": "dist/linking.js",
   "module": "es/linking.js",
   "jsnext:main": "es/linking.js",
-  "directories": [
+  "files": [
     "dist",
     "es"
   ],
