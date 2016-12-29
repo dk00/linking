@@ -17,12 +17,15 @@ function handle-change select, props
     @changed = true
   else notify @listeners
 
+!function set-context store
+  @source = {store}
+  @getChildContext = -> @source
+
 function mount select
   @store = @props.store || @context.store
   @selected = select @store.getState!, @props
-  @getChildContext = -> @source if select != pass || @props.store
   if select == pass
-    @source = @{store}
+    set-context.call @, @store
     return
 
   listeners = @listeners = new Set
@@ -30,7 +33,7 @@ function mount select
     listeners.add update
     listeners.delete.bind listeners, update
 
-  @source = store: Object.assign {} @store, {subscribe}
+  set-context.call @, Object.assign {} @store, {subscribe}
 
 function listen-store select
   componentDidMount: -> @off = @store.subscribe ~>
