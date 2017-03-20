@@ -17,15 +17,15 @@ function handle-change select, props
     @changed = true
   else notify @listeners
 
-!function set-context store
-  @source = {store}
-  @getChildContext = -> @source
+function set-context self, store
+  self.source = {store}
+  self.get-child-context = -> @source
 
-function mount select
+!function mount select
   @store = @props.store || @context.store
   @selected = select @store.getState!, @props
   if select == pass
-    set-context.call @, @store
+    set-context @, @store
     return
 
   listeners = @listeners = new Set
@@ -33,11 +33,11 @@ function mount select
     listeners.add update
     listeners.delete.bind listeners, update
 
-  set-context.call @, Object.assign {} @store, {subscribe}
+  set-context @, {...@store, subscribe}
 
 function listen-store select
   componentDidMount: -> @off = @store.subscribe ~>
-    @setState empty if handle-change.call @, select, @props
+    handle-change.call @, select, @props and @setState empty
   componentWillUnmount: -> @off!
 
 function handle-props select, merge
@@ -64,8 +64,8 @@ function link {createElement: h}: React
     context-types = store: that
     types = contextTypes: context-types, childContextTypes: context-types
 
-  render, select=pass, merge=pass <- (wrap =)
-  linking = chain select, merge, render
-  h.bind void React.createClass Object.assign {} types, linking
+  (render, select=pass, merge=pass) ->
+    linking = chain select, merge, render
+    h.bind void React.create-class {} <<< types <<< linking
 
-``export {link, link as default}``
+export {default: link, link}

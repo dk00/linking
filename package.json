@@ -1,16 +1,19 @@
 {
   "name": "linking",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Alternaive Redux bindings for React",
-  "main": "dist/linking.js",
+  "main": "lib/linking.js",
   "module": "es/linking.js",
+  "browser": "dist/linking.js",
   "jsnext:main": "es/linking.js",
   "files": [
     "dist",
+    "lib",
     "es"
   ],
   "scripts": {
-    "test": "gulp coverage",
+    "test": "nyc --instrument false lsc test/index",
+    "posttest": "nyc report -r lcov -r json && mv coverage/coverage-final.json coverage/coverage.json",
     "prepublish": "gulp dist"
   },
   "repository": "dk00/linking",
@@ -26,15 +29,20 @@
   "bugs": "https://github.com/dk00/linking/issues",
   "homepage": "https://github.com/dk00/linking#readme",
   "devDependencies": {
+    "babel-plugin-istanbul": "",
+    "babel-plugin-transform-es2015-modules-commonjs": "",
+    "babel-preset-stage-0": "",
+    "babel-register": "",
     "gulp": "",
-    "istanbul": "",
     "jsdom": "",
     "livescript": "",
+    "livescript-next": "",
+    "nyc": "",
     "react": "",
     "react-dom": "",
     "redux": "",
-    "remap-istanbul": ">= 0.8.4",
     "rollup": "",
+    "rollup-plugin-babel": "",
     "tape": ""
   }
 }

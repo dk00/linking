@@ -1,8 +1,11 @@
-require! <[react redux]>
-require! \react-dom : reactDOM, \../dist/linking.cjs : {link: link-base}
-{createElement: h} = react
+import
+  redux: {create-store}
+  \../src/linking : link-base
+  react
+  \react-dom : reactDOM
 
-function link => (link-base react) ...
+h = react.create-element
+link = link-base react
 function pass => it
 
 sample-state = value: foo: \bar
@@ -13,7 +16,7 @@ function reduce state={} {type, data} => switch type
   | _ => state
 
 function sample-render child, props
-  store = redux.createStore reduce, value: 'state value'
+  store = create-store reduce, value: 'state value'
 
   new Promise (resolve, reject) ->
     function tail => h \div,, \tail
@@ -49,9 +52,9 @@ function pass-state t
     passed := props?value
     h \div
   function select state, props
-    return unless state.count > 0
-    [to state.count || 0]reduce (res, i) -> res <<< ('a' + i): i
-    , value: [state.value, props.value]join ', '
+    return {} unless state.count > 0
+    ('a' + state.count || 0): state.count
+    value: [state.value, props.value]join ', '
   linked = link child, select
 
   sample-render linked, value: 'prop value' .then ->
@@ -189,8 +192,4 @@ function test t
   .then -> t.end!
   .catch -> console.log it
 
-if require.main == module
-  require \./index .setup!
-  require \tape .test \Linking test
-
-module.exports = test
+export default: test

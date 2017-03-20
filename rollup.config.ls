@@ -1,14 +1,12 @@
-require! path: {relative} livescript: {compile}
+require! \rollup-plugin-babel : babel, \livescript-next : {parse}
 
-function transform code, name
-  return unless /\.ls$/test name
-  options = bare: true map: \linked filename: relative __dirname, name
-  {code, map} = compile code, options
-  {code, map: JSON.parse map.toString!}
+babel-options =
+  presets: <[stage-0]>
+  parser-opts: parser: parse
 
 export
   entry: \src/linking.ls
-  plugins: [{transform}]
-  moduleName: require \./package.json .name
+  plugins: [babel babel-options]
+  module-name: require \./package.json .name
   exports: \named
   use-strict: false
