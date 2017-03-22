@@ -38,11 +38,13 @@
     "livescript": "",
     "livescript-next": "",
     "nyc": "",
+    "preact": "",
     "react": "",
     "react-dom": "",
     "redux": "",
     "rollup": "",
     "rollup-plugin-babel": "",
+    "rollup-plugin-node-resolve": "",
     "tape": ""
   }
 }

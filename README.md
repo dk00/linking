@@ -11,7 +11,7 @@ Alternative Redux bindings for React.
 
 ## API
 
-### `link(React)`: `(render[, select][, merge]) => linkedRender`
+### `link(React): (render[, select][, merge]) => linkedRender`
 
 Link a render function to a store. Return a linked render function.
 `props.store` will be used if `store` is passed to the returned function, other components use the store provided by their ancestor.
@@ -31,6 +31,29 @@ Link a render function to a store. Return a linked render function.
 
 - `React`: `{createClass, createElement[, PropTypes]}`
 
+
+### `handleActions(updaterMap[, defaultState={}]): reduce`
+
+Turn an updater map into a reduce function.
+
+The updater with key equal to type of dispatched action type is used for reduction.
+Current state and payload of the action is passed to the updater function, and result of it is shallowly merged into current state, like `setState`.
+If the updater returned a falsly value, or there's no updater for the action type, original state is returned instead.
+
+```js
+const updaters = {
+  increment: ({count}, payload) => ({count: count + payload}),
+  decrement: ({count}, payload) => ({count: count - payload}),
+  reset: (state, action) => ({count: 0})
+}
+const reduce = handleActions(updaters)
+
+const actual = reduce({count: 1, data: 't'}, {type: 'increment', payload: 2})
+const expected = {count: 3, data: 't'}
+t.deepEqual(actual, expected)
+```
+
+---
 
 #### Examples
 

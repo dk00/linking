@@ -13,7 +13,13 @@ function setup
   global.window = document.defaultView
   global.navigator = global.window.navigator
 
+units =
+  \handle-actions : 'Handle Actions'
+  linking: \Linking
+
 if require.main == module
   setup!
   require! tape: {test}
-  test \Linking (require \./linking .default)
+  Object.keys units .for-each (name) ->
+    test units[name], (require "./#name" .default)
+
