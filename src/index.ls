@@ -1,3 +1,3 @@
 export
   \./linking : {link, default: link}
-  \./create-actions: create-actions
+  \./handle-actions : handle-actions
