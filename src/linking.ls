@@ -1,3 +1,5 @@
+import \./class-creator : class-creator
+
 empty = {}
 function pass => it
 function flat-diff a, b
@@ -58,14 +60,14 @@ function chain select, merge, render
       @changed = false
       render merge @selected, @store.dispatch, @props
 
-function link {createElement: h}: React
-  do
-    that = React.PropTypes.any
+function link {create-element: h, Component, PropTypes, \
+    create-class=class-creator Component}
+  if PropTypes?any
     context-types = store: that
     types = contextTypes: context-types, childContextTypes: context-types
 
   (render, select=pass, merge=pass) ->
     linking = chain select, merge, render
-    h.bind void React.create-class {} <<< types <<< linking
+    h.bind void create-class {} <<< types <<< linking
 
 export {default: link, link}

@@ -1,6 +1,7 @@
 import
   redux: {create-store}
   \../src/linking : link-base
+  preact: {Component, h: preact-create-element, render: preact-render}
   react
   \react-dom : reactDOM
 
@@ -182,10 +183,20 @@ function simple-wrapper t
   sample-render linked .then ->
     t.equal (result.join ' '), expected, desc
 
+function with-preact t
+  link = link-base {Component, create-element: preact-create-element}
+  actual = false
+  linked = link ->
+    actual := true
+    h \div
+  store = get-state: -> {}
+  preact-render (linked {store}), document.create-element \div
+  t.ok actual, 'link with built-in create-class'
+
 function test t
   cases = [add-context, pass-state, listen-changes, prop-changes
   unmount-unsubscribe, cut-select, ordered-notify, merge-props
-  no-subscription, simple-wrapper]
+  no-subscription, simple-wrapper, with-preact]
 
   cases.reduce (previous, run) -> previous.then -> run t
   , Promise.resolve!
