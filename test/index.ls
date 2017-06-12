@@ -8,10 +8,10 @@ register babel-options =
   extensions: <[.ls]>
 
 function setup
-  require! jsdom: { jsdom }
-  global.document = jsdom '<!doctype html><html><body></body></html>'
-  global.window = document.defaultView
-  global.navigator = global.window.navigator
+  require! jsdom: { JSDOM }
+  {global.window} = new JSDOM '<!doctype html><html><body></body></html>'
+  {global.document} = global.window
+  {global.navigator} = global.window
 
 units =
   \handle-actions : 'Handle Actions'

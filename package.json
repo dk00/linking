@@ -39,6 +39,7 @@
     "livescript-next": "",
     "nyc": "",
     "preact": "",
+    "prop-types": "",
     "react": "",
     "react-dom": "",
     "redux": "",

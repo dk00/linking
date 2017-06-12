@@ -4,9 +4,10 @@ import
   preact: {Component, h: preact-create-element, render: preact-render}
   react
   \react-dom : reactDOM
+  \prop-types : prop-types
 
 h = react.create-element
-link = link-base react
+link = link-base {...react, PropTypes: prop-types}
 function pass => it
 
 sample-state = value: foo: \bar
@@ -40,7 +41,7 @@ function add-context t
   function child _, context
     context-store := context.store
     h \div
-  child.contextTypes = store: react.PropTypes.any
+  child.contextTypes = store: prop-types.any
 
   sample-render (-> h child) .then ([store]) ->
     t.equal context-store.getState, store.getState, desc
