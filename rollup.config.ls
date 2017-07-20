@@ -1,16 +1,18 @@
-require! {
+import
   \rollup-plugin-babel : babel
-  \rollup-plugin-node-resolve : node-resolve }
+  \rollup-plugin-node-resolve : node-resolve
 
-babel-options =
-  presets: <[stage-0]>
-  parser-opts: parser: \livescript-next
-
-resolve = node-resolve extensions: <[.ls]>
-
-export
+{name} = require \./package.json
+options =
   entry: \src/index.ls
-  plugins: [resolve, babel babel-options]
-  module-name: require \./package.json .name
-  exports: \named
-  use-strict: false
+  plugins:
+    node-resolve extensions: <[.ls]>
+    babel require \./.babelrc
+  module-name: name
+  exports: \named source-map: true use-strict: false
+  targets:
+    * dest: "es/#name.js"
+    * dest: "dist/#name.js" format: \umd
+    * dest: "lib/#name.js" format: \cjs
+
+export default: options

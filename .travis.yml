@@ -2,7 +2,10 @@ language: node_js
 node_js:
   - node
   - lts/*
-cache: yarn
+before_install: if [[ `npm -v` != 5* ]]; then npm i -g npm; fi
+cache:
+  directories:
+    - node_modules
 after_success:
-  - yarn add codecov
+  - npm i codecov
   - ./node_modules/.bin/codecov

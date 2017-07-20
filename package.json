@@ -14,7 +14,7 @@
   "scripts": {
     "test": "nyc --instrument false lsc test/index",
     "posttest": "nyc report -r lcov -r json && mv coverage/coverage-final.json coverage/coverage.json",
-    "prepublish": "gulp dist"
+    "prepare": "rollup -c"
   },
   "repository": "dk00/linking",
   "keywords": [
@@ -33,7 +33,6 @@
     "babel-plugin-transform-es2015-modules-commonjs": "",
     "babel-preset-stage-0": "",
     "babel-register": "",
-    "gulp": "",
     "jsdom": "",
     "livescript": "",
     "livescript-next": "",
