@@ -4,10 +4,11 @@ import
   preact: {Component, h: preact-create-element, render: preact-render}
   react
   \react-dom : reactDOM
+  \create-react-class : create-class
   \prop-types : prop-types
 
 h = react.create-element
-link = link-base {...react, PropTypes: prop-types}
+link = link-base {create-element: h, create-class, PropTypes: prop-types}
 function pass => it
 
 sample-state = value: foo: \bar

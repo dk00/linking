@@ -12,6 +12,7 @@
     "es"
   ],
   "scripts": {
+    "pretest": "rollup -c",
     "test": "nyc --instrument false lsc test/index",
     "posttest": "nyc report -r lcov -r json && mv coverage/coverage-final.json coverage/coverage.json",
     "prepare": "rollup -c"
@@ -33,6 +34,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "",
     "babel-preset-stage-0": "",
     "babel-register": "",
+    "create-react-class": "",
     "jsdom": "",
     "livescript": "",
     "livescript-next": "",

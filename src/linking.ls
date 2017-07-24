@@ -1,6 +1,7 @@
-import \./class-creator : class-creator
+import \./class-factory : class-factory
 
 empty = {}
+function name => it.display-name || it.name || it
 function pass => it
 function flat-diff a, b
   return false if a == b
@@ -8,66 +9,52 @@ function flat-diff a, b
   keys = Object.keys a
   return true if keys.length != Object.keys b .length
   keys.some -> a[it] != b[it]
-function name => it && (it.display-name || it.name || 'no name')
 
-!function notify listeners
-  Array.from listeners.keys! .map (update) -> update!
+function nested store
+  listeners = new Set
+  Object.assign {} store,
+    subscribe: ->
+      listeners.add it
+      listeners.delete.bind listeners, it
+    notify: -> Array.from listeners.keys! .map -> it!
 
-function handle-change select, props
-  if flat-diff @selected, next = select @store.getState!, props
-    @selected = next
-    @changed = true
-  else notify @listeners
+!function init instance, select, merge, render
+  store = instance.props.store || instance.context.store
+  context = store: next = if select != pass then nested store else store
+  selected = select store.get-state!, instance.props
+  changed = false
 
-function set-context self, store
-  self.source = {store}
-  self.get-child-context = -> @source
+  function handle-change props=instance.props
+    prev = selected
+    selected := select store.get-state!, props
+    if flat-diff prev, selected then changed := true else next.notify!
 
-!function mount select
-  @store = @props.store || @context.store
-  @selected = select @store.getState!, @props
-  if select == pass
-    set-context @, @store
-    return
-
-  listeners = @listeners = new Set
-  function subscribe update
-    listeners.add update
-    listeners.delete.bind listeners, update
-
-  set-context @, {...@store, subscribe}
-
-function listen-store select
-  componentDidMount: -> @off = @store.subscribe ~>
-    handle-change.call @, select, @props and @setState empty
-  componentWillUnmount: -> @off!
-
-function handle-props select, merge
-  componentWillReceiveProps: (next-props) ->
-    handle-change.call @, select, next-props if select != pass
-    @changed ||= merge.length > 2 && flat-diff next-props, @props
-  shouldComponentUpdate: -> @changed
+  handle-mount = if select != pass then component-did-mount: !->
+    instance.component-will-unmount = store.subscribe ~>
+      handle-change! && instance.set-state empty
+  Object.assign instance, handle-mount,
+    get-child-context: -> context
+    component-will-receive-props: !->
+      handle-change it if select != pass
+      changed ||:= merge.length > 2 && flat-diff instance.props, it
+    should-component-update: -> changed
+    render: ->
+      changed := false
+      render merge selected, store.dispatch, instance.props
 
 function chain select, merge, render
-  hooks = if select == pass then {} else listen-store select
-  if select != pass || merge.length > 2
-    Object.assign hooks, handle-props select, merge
+  display-name: name render
+  component-will-mount: !-> init @, select, merge, render
+  render: pass
 
-  hooks <<<
-    display-name: "linking #{name render}: " + [select, merge]map name
-    componentWillMount: -> mount.call @, select
-    render: ->
-      @changed = false
-      render merge @selected, @store.dispatch, @props
-
-function link {create-element: h, Component, PropTypes, \
-    create-class=class-creator Component}
-  if PropTypes?any
+function link {create-element: h, Component, PropTypes: prop-types, \
+    create-class=class-factory Component}
+  types = if prop-types?any
     context-types = store: that
-    types = contextTypes: context-types, childContextTypes: context-types
+    {context-types, child-context-types: context-types}
 
   (render, select=pass, merge=pass) ->
     linking = chain select, merge, render
-    h.bind void create-class {} <<< types <<< linking
+    h.bind void create-class Object.assign {} types, linking
 
 export {default: link, link}
