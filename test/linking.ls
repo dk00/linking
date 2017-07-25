@@ -8,7 +8,7 @@ import
   \prop-types : prop-types
 
 h = react.create-element
-link = link-base {create-element: h, create-class, PropTypes: prop-types}
+link = link-base {create-element: h, create-class, prop-types}
 function pass => it
 
 sample-state = value: foo: \bar
@@ -23,10 +23,11 @@ function sample-render child, props
 
   new Promise (resolve, reject) ->
     function tail => h \div,, \tail
-    function root => h \div,, (child props), tail!
+    function root => h \div,, (h child, props), tail!
 
-    render = link root
-    reactDOM.render (render {store}), document.createElement \div
+    seed = link root
+    app = h seed, {store}
+    reactDOM.render app, document.create-element \div
     resolve!
   .then ->
     [1 3 7]reduce (previous, value) ->
@@ -88,7 +89,7 @@ function prop-changes t
     props.value % 4
 
   function pass-prop props
-    h \div,, link-child props
+    h \div,, h link-child, props
   linked = link pass-prop, ({count}) -> value: (count || 0) + 1
 
   expected = '1 2 4 8'
@@ -106,7 +107,7 @@ function cut-select t
     h \div
   lower = link child, ({count}) -> value: ((count || 0) + 1)%2
 
-  function upper => h \div,, lower!
+  function upper => h \div,, h lower
   linked = link upper, ({count}) -> value: count + 2
 
   sample-render linked .then -> t.equal count, 2 desc
@@ -121,7 +122,7 @@ function unmount-unsubscribe t
     value: (it.count || 0) + 1
 
   function wrap props
-    h \div,, if props.value < 4 then link-child!
+    h \div,, if props.value < 4 then h link-child
   linked = link wrap, -> value: it.count
 
   sample-render linked .then ->
@@ -138,7 +139,7 @@ function ordered-notify t
     value: (it.count <? 3) + which
 
   lower = link child, select \lower
-  higher = link -> h \div,, lower!
+  higher = link -> h \div,, h lower
   , select \higher
 
   sample-render higher .then ->
@@ -155,7 +156,7 @@ function merge-props t
     received.push that if props.value
     props
 
-  function top => h \div,, child value: it.value % 4
+  function top => h \div,, h child, value: it.value % 4
   linked = link top, -> value: it.count
   sample-render linked .then ->
     t.equal (received.join ' '), expected, desc
@@ -169,7 +170,7 @@ function no-subscription t
     h \div
   ,, (,, props) -> props
 
-  function render => h \div,, nested it
+  function render => h \div,, h nested, it
   linked = link render, -> value: it.count
   sample-render linked .then -> t.ok rendered, desc
 
@@ -181,7 +182,7 @@ function simple-wrapper t
   nested = link -> h \div
   ,, (state, dispatch) ->
     result := [state.value, dispatch]map -> typeof it
-  linked = link -> h \div,, nested!
+  linked = link -> h \div,, h nested
   sample-render linked .then ->
     t.equal (result.join ' '), expected, desc
 
@@ -192,7 +193,7 @@ function with-preact t
     actual := true
     h \div
   store = get-state: -> {}
-  preact-render (linked {store}), document.create-element \div
+  preact-render (preact-create-element linked, {store}), document.create-element \div
   t.ok actual, 'link with built-in create-class'
 
 function test t

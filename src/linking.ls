@@ -47,14 +47,13 @@ function chain select, merge, render
   component-will-mount: !-> init @, select, merge, render
   render: pass
 
-function link {create-element: h, Component, PropTypes: prop-types, \
-    create-class=class-factory Component}
+function link {Component, prop-types, create-class=class-factory Component}
   types = if prop-types?any
     context-types = store: that
     {context-types, child-context-types: context-types}
 
   (render, select=pass, merge=pass) ->
     linking = chain select, merge, render
-    h.bind void create-class Object.assign {} types, linking
+    create-class Object.assign {} types, linking
 
 export {default: link, link}

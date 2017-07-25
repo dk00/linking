@@ -1,7 +1,5 @@
 # Linking
 
-Work in progress
-
 Alternative Redux bindings for React.
 
 [![build status](https://travis-ci.org/dk00/linking.svg)](https://travis-ci.org/dk00/linking)
@@ -11,64 +9,92 @@ Alternative Redux bindings for React.
 
 ## API
 
-### `link(React): (render[, select][, merge]) => linkedRender`
+### `composeLink({Component, createClass, [propTypes]})`
 
-Link a render function to a store. Return a linked render function.
+Create the `link` function for specified react implementation.
+
+#### Examples
+
+**React**
+
+```js
+import createClass from 'create-react-class'
+import propTypes from 'prop-types'
+import composeLink from 'linking'
+
+const link = composeLink({createClass, propTypes})
+```
+
+**preact**
+
+```js
+import {Component} from 'preact'
+import composeLink from 'linking'
+
+const link = composeLink({Component})
+```
+
+### `link(render[, select][, merge])`
+
+Link a render function to a store. Return a linked render function or component.
 `props.store` will be used if `store` is passed to the returned function, other components use the store provided by their ancestor.
 
 #### Arguments
 
-- `select(state[, ownProps]): selectedProps`: Called when store state changes.
-  Re-rendering is skipped if result of this function is shallowly equal to previous.
+- `select(state[, ownProps])`: Select state properties related to the linked component.
+  Called when store state changes, re-rendering is skipped if result of this function is shallowly equal to previous.
   Omit this argument to ignore store updates.
   Defaults to `() => undefined`.
 
-- `merge(selectedProps, dispatch[, ownProps]): props`
+- `merge(selectedState, dispatch[, ownProps])`
+  Compose the props object to be passed to the linked component.
   Defaults to `selectedProps => selectedProps`.
 
-- `render(props)`: accepts a single "props" object argument with data
-  and returns a `React` element.
-
-- `React`: `{createClass, createElement[, PropTypes]}`
-
-
-### `handleActions(updaterMap[, defaultState={}]): reduce`
-
-Turn an updater map into a reduce function.
-
-The updater with key equal to type of dispatched action type is used for reduction.
-Current state and payload of the action is passed to the updater function, and result of it is shallowly merged into current state, like `setState`.
-If the updater returned a falsly value, or there's no updater for the action type, original state is returned instead.
-
-```js
-const updaters = {
-  increment: ({count}, payload) => ({count: count + payload}),
-  decrement: ({count}, payload) => ({count: count - payload}),
-  reset: (state, action) => ({count: 0})
-}
-const reduce = handleActions(updaters)
-
-const actual = reduce({count: 1, data: 't'}, {type: 'increment', payload: 2})
-const expected = {count: 3, data: 't'}
-t.deepEqual(actual, expected)
-```
-
----
+- `render(props)`: accepts a single "props" object argument with data and returns a `React` element.
 
 #### Examples
+
+##### Inject store for child elements
+
+```js
+import createClass from 'create-react-class'
+import propTypes from 'prop-types'
+import composeLink from 'linking'
+
+const link = composeLink({createClass, propTypes})
+const root = link(renderRoot)
+ReactDOM.render(root({store}), document.querySelector('#root'))
+```
+
+##### Inject dispatch and todos
+
+```js
+function mapStateToProps(state) {
+  return { todos: state.todos }
+}
+
+function merge(state, dispatch) {
+  return Object.assign({dispatch}, state)
+}
+
+export default link(todoApp, mapStateToProps, merge)
+```
 
 ##### implement `connect` and `Provider` of react-redux
 
 ```js
-import {link} from 'linking'
+import React from 'react'
+import composeLink from 'linking'
+const h = React.createElement
+const link = composeLink({createClass, propTypes})
 
 function Provider({store, children}) {
   const element = react.Children.only(children)
   function seed() {
     return element
   }
-  const render = link(react)(seed)
-  return render({store})
+  const container = link(seed)
+  return h(container, {store})
 }
 
 function defaultDispatch(dispatch) {
@@ -92,33 +118,38 @@ function connect(mapStateToProps,
     return mergeProps(stateProps, actions, ownProps)
   }
   return Component => {
-    const render = link(react)(
-      props => h(Component, props),
-      mapStateToProps, merge)
-    return props => render(props)
+    const render = props => h(Component, props)
+    link(render, mapStateToProps, merge)
   }
 }
 
 export {Provider, connect}
 ```
 
-##### Inject store for child elements
+### `handleActions(updaterMap[, defaultState={}]): reduce`
+
+Turn an updater map into a reduce function.
+
+The updater with key equal to type of dispatched action type is used for reduction.
+Current state and payload of the action is passed to the updater function, and result of it is shallowly merged into current state, like `setState`.
+If the updater returned a falsly value, or there's no updater for the action type, original state is returned instead.
+
+#### Exmaples
 
 ```js
-const root = link(React)(renderRoot)
-ReactDOM.render(root({store}), document.querySelector('#root'))
-```
-
-##### Inject dispatch and todos
-
-```js
-function mapStateToProps(state) {
-  return { todos: state.todos }
+const updaters = {
+  increment: ({count}, payload) => ({count: count + payload}),
+  decrement: ({count}, payload) => ({count: count - payload}),
+  reset: (state, action) => ({count: 0})
 }
+const reduce = handleActions(updaters)
+let actual, expected
 
-function merge(state, dispatch) {
-  return Object.assign({dispatch}, state)
-}
+actual = reduce({count: 1, data: 't'}, {type: 'increment', payload: 2})
+expected = {count: 3, data: 't'}
+t.deepEqual(actual, expected)
 
-export default link(React)(todoApp, mapStateToProps, merge)
+actual = reduce({count: 6}, {type: 'decrement', payload: 1})
+expected = {count: 5}
+t.deepEqual(actual, expected)
 ```
