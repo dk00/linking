@@ -174,17 +174,34 @@ function no-subscription t
   linked = link render, -> value: it.count
   sample-render linked .then -> t.ok rendered, desc
 
-function simple-wrapper t
-  desc = 'pass state & dispatch to no-hook components'
+function action-binder t
+  reduce = (, action) ->
+    if action.payload then action else \initial
+  store = create-store reduce
+  select = -> it
+  touch-action = -> Promise.resolve type: \touch payload: true
+  merge = (state, bind-action) ->
+    on-click: bind-action type: \click payload: true
+    on-touch-start: bind-action touch-action
+  component = -> h \p it
+  app = link component, select, merge
 
-  expected = 'string function'
-  result = []
-  nested = link -> h \div
-  ,, (state, dispatch) ->
-    result := [state.value, dispatch]map -> typeof it
-  linked = link -> h \div,, h nested
-  sample-render linked .then ->
-    t.equal (result.join ' '), expected, desc
+  root = document.create-element \div
+  document.body.append-child root
+  reactDOM.render (h app, {store}), root
+
+  Promise.resolve!then ->
+    target = root.query-selector \p
+    target.dispatch-event new window.Event \click bubbles: true
+    actual = store.get-state!type
+    expected = \click
+    t.equal actual, expected, 'provide bind-action to merge function'
+
+    target.dispatch-event new window.Event \touchstart bubbles: true
+  .then ->
+    actual = store.get-state!type
+    expected = \touch
+    t.equal actual, expected, 'bind-action should accept function and promise'
 
 function with-preact t
   link = link-base {Component, create-element: preact-create-element}
@@ -197,9 +214,10 @@ function with-preact t
   t.ok actual, 'link with built-in create-class'
 
 function test t
-  cases = [add-context, pass-state, listen-changes, prop-changes
-  unmount-unsubscribe, cut-select, ordered-notify, merge-props
-  no-subscription, simple-wrapper, with-preact]
+  cases =
+    add-context, pass-state, listen-changes, prop-changes
+    unmount-unsubscribe, cut-select, ordered-notify, merge-props
+    no-subscription, action-binder, with-preact
 
   cases.reduce (previous, run) -> previous.then -> run t
   , Promise.resolve!

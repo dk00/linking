@@ -1,6 +1,6 @@
 {
   "name": "linking",
-  "version": "0.0.3",
+  "version": "0.1.0-beta.0",
   "description": "Alternaive Redux bindings for React",
   "main": "lib/linking.js",
   "module": "es/linking.js",
@@ -12,10 +12,12 @@
     "es"
   ],
   "scripts": {
-    "pretest": "rollup -c",
+    "build": "rollup -c",
+    "pretest": "npm run build",
     "test": "nyc --instrument false lsc test/index",
     "posttest": "nyc report -r lcov -r json && mv coverage/coverage-final.json coverage/coverage.json",
-    "prepare": "rollup -c"
+    "preversion": "npm test",
+    "prepublishOnly": "npm test"
   },
   "repository": "dk00/linking",
   "keywords": [

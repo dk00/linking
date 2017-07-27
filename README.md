@@ -46,9 +46,15 @@ Link a render function to a store. Return a linked render function or component.
   Omit this argument to ignore store updates.
   Defaults to `() => undefined`.
 
-- `merge(selectedState, dispatch[, ownProps])`
-  Compose the props object to be passed to the linked component.
+- `merge(selectedState, bindAction, [ownProps])`
   Defaults to `selectedProps => selectedProps`.
+  Compose the props object to be passed to the linked component.
+
+  `bindAction(action, [options])`
+  Creates event handler functions that dispatch passed `action`. It is inversion of control to `dispatch`.
+
+  `action`: object or `createAction(event, [options])`
+  `action` can also be a function returns an action, or a promise resolves to an action.
 
 - `render(props)`: accepts a single "props" object argument with data and returns a `React` element.
 
@@ -66,15 +72,15 @@ const root = link(renderRoot)
 ReactDOM.render(root({store}), document.querySelector('#root'))
 ```
 
-##### Inject dispatch and todos
+##### Inject todos and addTodo
 
 ```js
 function mapStateToProps(state) {
   return { todos: state.todos }
 }
 
-function merge(state, dispatch) {
-  return Object.assign({dispatch}, state)
+function merge(state, bindAction) {
+  return Object.assign({onClick: bindAction({type: 'ADD_TODO'})}, state)
 }
 
 export default link(todoApp, mapStateToProps, merge)
@@ -113,7 +119,7 @@ function mapDispatch(mapDispatchToProps, dispatch, ownProps) {
 function connect(mapStateToProps,
   mapDispatchToProps=defaultDispatch,
   mergeProps=defaultMerge) {
-  function merge(stateProps, dispatch, ownProps) {
+  function merge(stateProps, {dispatch}, ownProps) {
     const actions = mapDispatch(mapDispatchToProps, dispatch, ownProps)
     return mergeProps(stateProps, actions, ownProps)
   }

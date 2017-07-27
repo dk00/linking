@@ -29,6 +29,10 @@ function nested store
     selected := select store.get-state!, props
     if flat-diff prev, selected then changed := true else next.notify!
 
+  function bind-action create-action, props => (event) ->
+    action = create-action? event, props or create-action
+    action.then? store.dispatch or store.dispatch action
+
   handle-mount = if select != pass then component-did-mount: !->
     instance.component-will-unmount = store.subscribe ~>
       handle-change! && instance.set-state empty
@@ -40,7 +44,7 @@ function nested store
     should-component-update: -> changed
     render: ->
       changed := false
-      render merge selected, store.dispatch, instance.props
+      render merge selected, bind-action, instance.props
 
 function chain select, merge, render
   display-name: name render
