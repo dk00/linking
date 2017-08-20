@@ -31,7 +31,8 @@ function nested store
 
   function bind-action create-action, props => (event) ->
     action = create-action? event, props or create-action
-    action.then? store.dispatch or store.dispatch action
+    action.then? store.dispatch or
+    if action.type then store.dispatch action
 
   handle-mount = if select != pass then component-did-mount: !->
     instance.component-will-unmount = store.subscribe ~>

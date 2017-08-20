@@ -183,15 +183,20 @@ function action-binder t
   merge = (state, bind-action) ->
     on-click: bind-action type: \click payload: true
     on-touch-start: bind-action touch-action
+    on-touch-move: bind-action ->
+
   component = -> h \p it
   app = link component, select, merge
 
   root = document.create-element \div
   document.body.append-child root
   reactDOM.render (h app, {store}), root
+  target = root.query-selector \p
+
+  window.onerror = ->
+    t.fail 'ignote falsely values returned from create-action'
 
   Promise.resolve!then ->
-    target = root.query-selector \p
     target.dispatch-event new window.Event \click bubbles: true
     actual = store.get-state!type
     expected = \click
@@ -202,6 +207,8 @@ function action-binder t
     actual = store.get-state!type
     expected = \touch
     t.equal actual, expected, 'bind-action should accept function and promise'
+    target.dispatch-event new window.Event \touchmove bubbles: true
+    window.onerror = void
 
 function with-preact t
   link = link-base {Component, create-element: preact-create-element}
