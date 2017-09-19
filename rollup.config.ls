@@ -4,15 +4,15 @@ import
 
 {name} = require \./package.json
 options =
-  entry: \src/index.ls
+  input: \src/index.ls
   plugins:
     node-resolve extensions: <[.ls]>
     babel require \./.babelrc
-  module-name: name
-  exports: \named source-map: true use-strict: false
-  targets:
-    * dest: "es/#name.js"
-    * dest: "dist/#name.js" format: \umd
-    * dest: "lib/#name.js" format: \cjs
+  name: name
+  exports: \named sourcemap: true use-strict: false
+  output:
+    * file: "es/#name.js" format: \es
+    * file: "dist/#name.js" format: \umd
+    * file: "lib/#name.js" format: \cjs
 
 export default: options
