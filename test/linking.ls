@@ -180,10 +180,11 @@ function action-binder t
   store = create-store reduce
   select = -> it
   touch-action = -> Promise.resolve type: \touch payload: true
+  peek = \initial
   merge = (state, bind-action) ->
     on-click: bind-action type: \click payload: true
     on-touch-start: bind-action touch-action
-    on-touch-move: bind-action ->
+    on-touch-move: bind-action (,, get-state) -> peek := get-state!type
 
   component = -> h \p it
   app = link component, select, merge
@@ -209,6 +210,11 @@ function action-binder t
     t.equal actual, expected, 'bind-action should accept function and promise'
     target.dispatch-event new window.Event \touchmove bubbles: true
     window.onerror = void
+
+    actual = peek
+    expected = \touch
+    t.is actual, expected,
+    'bind-action should receive getState as 3rd parameter'
 
 function with-preact t
   link = link-base {Component, create-element: preact-create-element}

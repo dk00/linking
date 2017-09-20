@@ -1,6 +1,6 @@
 {
   "name": "linking",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "Alternaive Redux bindings for React",
   "main": "lib/linking.js",
   "module": "es/linking.js",

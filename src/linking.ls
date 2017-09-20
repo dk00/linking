@@ -30,7 +30,7 @@ function nested store
     if flat-diff prev, selected then changed := true else next.notify!
 
   function bind-action create-action, props => (event) ->
-    action = create-action? event, props or create-action
+    action = create-action? event, props, store.get-state or create-action
     action.then? store.dispatch or
     if action.type then store.dispatch action
 
