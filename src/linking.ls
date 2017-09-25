@@ -1,14 +1,10 @@
-import \./class-factory : class-factory
+import
+  \./class-factory : class-factory
+  \./flat-diff : flat-diff
 
 empty = {}
 function name => it.display-name || it.name || it
 function pass => it
-function flat-diff a, b
-  return false if a == b
-  return true if typeof a != \object or typeof b != \object
-  keys = Object.keys a
-  return true if keys.length != Object.keys b .length
-  keys.some -> a[it] != b[it]
 
 function nested store
   listeners = new Set

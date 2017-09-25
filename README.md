@@ -159,3 +159,24 @@ actual = reduce({count: 6}, {type: 'decrement', payload: 1})
 expected = {count: 5}
 t.deepEqual(actual, expected)
 ```
+
+### `sideEffect :: Component -> handleChange -> Component`
+
+Create a component that, when mounting, updating, unmounting, calls `handleChange` with props of each mounted instance.
+
+#### Examples
+
+Setting document title
+
+```js
+import {Component} from 'react'
+import {sideEffect} from 'linking'
+
+const arrayLast = list => list[list.length -1]
+const setTitle = propsList => {
+  const {title=document.title} = arrayLast(propsList)
+  document.title = title
+}
+
+export default sideEffect(Component)(setTitle)
+```

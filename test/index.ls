@@ -1,16 +1,13 @@
 require \../register <| plugins: <[istanbul]>
 
-function setup
-  require! jsdom: { JSDOM }
-  {global.window} = new JSDOM '<!doctype html><html><body></body></html>'
-  global{document, navigator} = global.window
-
 units =
-  \handle-actions : 'Handle Actions'
+  \handle-actions : 'Handle actions'
   linking: \Linking
+  \side-effect : 'Side effect component factory'
 
 if require.main == module
-  setup!
+  require \./setup
   require! tape: {test}
-  Object.keys units .for-each (name) ->
-    test units[name], (require "./#name" .default)
+  list = if process.argv.2 then that.split ' ' else  Object.keys units
+  list.for-each (name) ->
+    test units[name] || name, (require "./#name" .default)
