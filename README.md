@@ -9,6 +9,42 @@ Alternative Redux bindings for React.
 
 ## API
 
+### `linkApp({reducers, [preload], component, [env]})`
+
+Create a store and mount the app with it.
+
+Install peer react implementation (`preact` or `react` + `react-dom`) and import corresponding version(`import {linkApp} from 'linking/preact'` or `import {linkApp} from 'linking/react'`) to use.
+
+Coming s∞n: `import linkApp from 'linking/vue'`
+
+#### Arguments
+
+- `reducers` (Object): An object that will be passed to `combineReducers` of Redux. In addition to reducing functions, object values can also be updater maps, and will be converted to reducing functions by `handle-actions`.
+- `preload` (Function):  A function that returns preloaded state.
+- `component` ((p)React component): The root component of the app.
+
+#### Returns
+
+(Store): Redux store created with specified reducers.
+
+While in development environment, HMR helper functions will also be added to the `store` object. `replaceApp` can be used to replace the root component, and `replaceReducers` also accepts the `reducers` object passed to `linkApp`.
+
+#### Example
+
+```js
+import linkApp from 'linking/preact'
+import reducers from './reduce'
+import preload from './preload'
+import main from './main'
+
+const store = linkApp({reducers, preload, component: main})
+
+if (module.hot) {
+  module.hot.accept('./reduce', () => store.replaceReducers(reducers))
+  module.hot.accept('./main', () => store.replaceApp(main))
+}
+```
+
 ### `composeLink({Component, createClass, [propTypes]})`
 
 Create the `link` function for specified react implementation.
@@ -134,7 +170,7 @@ export {Provider, connect}
 
 ### `handleActions(updaterMap[, defaultState={}]): reduce`
 
-Turn an updater map into a reduce function.
+Turn an updater map into a reducing function.
 
 The updater with key equal to type of dispatched action type is used for reduction.
 Current state and payload of the action is passed to the updater function, and result of it is shallowly merged into current state, like `setState`.
@@ -158,6 +194,36 @@ t.deepEqual(actual, expected)
 actual = reduce({count: 6}, {type: 'decrement', payload: 1})
 expected = {count: 5}
 t.deepEqual(actual, expected)
+```
+
+### `composeReduce(reducers)`
+
+Turns an object into a single reducing function like `combineReducers`.
+
+#### Arguments
+
+`reducers` (Object): In addition to reducing functions, object values can also be updater maps, and will be converted to reducing functions by `handleActions`.
+
+#### Examples
+
+```js
+
+function todos(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return state.concat([action.text])
+    default:
+      return state
+  }
+}
+
+const counter = {
+  INCREMENT: ({counter}, {amount}) => ({counter: counter + amount}),
+  DECREMENT: ({counter}, {amount}) => ({counter: counter - amount})
+}
+
+const reducer = composeReduce({todos, counter})
+const store = createStore(reducer)
 ```
 
 ### `sideEffect :: Component -> handleChange -> Component`

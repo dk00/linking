@@ -1,23 +1,25 @@
 {
   "name": "linking",
-  "version": "0.1.0-beta.3",
+  "version": "0.1.0-beta.4",
   "description": "Alternaive Redux bindings for React",
-  "main": "lib/linking.js",
-  "module": "es/linking.js",
+  "main": "dist/linking.js",
+  "module": "dist/linking.esm.js",
   "browser": "dist/linking.js",
-  "jsnext:main": "es/linking.js",
+  "jsnext:main": "dist/linking.esm.js",
   "files": [
     "dist",
     "lib",
-    "es"
+    "preact",
+    "preact.js",
+    "preact.umd.js"
   ],
   "scripts": {
     "build": "rollup -c",
     "pretest": "npm run build",
     "test": "nyc --instrument false lsc test/index",
     "posttest": "nyc report -r lcov -r json && mv coverage/coverage-final.json coverage/coverage.json",
-    "preversion": "npm test",
-    "prepublishOnly": "npm test"
+    "preversion": "npm t",
+    "prepublishOnly": "npm t"
   },
   "repository": "dk00/linking",
   "keywords": [
@@ -34,6 +36,7 @@
   "devDependencies": {
     "babel-plugin-istanbul": "",
     "babel-plugin-transform-es2015-modules-commonjs": "",
+    "babel-plugin-transform-inline-environment-variables": "",
     "babel-preset-stage-0": "",
     "babel-register": "",
     "create-react-class": "",
