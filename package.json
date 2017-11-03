@@ -1,6 +1,6 @@
 {
   "name": "linking",
-  "version": "0.1.0-beta.4",
+  "version": "0.1.0-beta.5",
   "description": "Alternaive Redux bindings for React",
   "main": "dist/linking.js",
   "module": "dist/linking.esm.js",
@@ -9,9 +9,7 @@
   "files": [
     "dist",
     "lib",
-    "preact",
-    "preact.js",
-    "preact.umd.js"
+    "preact"
   ],
   "scripts": {
     "build": "rollup -c",
