@@ -4,5 +4,7 @@ es
 lib
 coverage
 .nyc_output
-preact*
-react*
+preact/*.js
+preact/*.map
+react/*.js
+react/*.map

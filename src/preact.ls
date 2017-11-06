@@ -10,4 +10,11 @@ import
   link-factory, side-effect-factory
 }
 
-export {start-app, link-start: start-app, default: link, link, h, side-effect}
+function render-vdom {reducers, preload, component}
+  state = preload {} or preload
+  store = create-store (compose-reduce reducers), state
+  h (link component), {store}
+
+export
+  default: link, link-start: start-app
+  {start-app, link, h, side-effect, render-vdom}

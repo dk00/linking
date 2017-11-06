@@ -17,12 +17,12 @@ targets =
       * file: "dist/#name.esm.js" format: \es
       * file: "dist/#name.js" format: \umd
   * input: \src/preact.ls
-    output: file: "preact.js" format: \es
+    output:
+      * file: "preact/index.esm.js" format: \es
+      * file: "preact/index.js" format: \cjs exports: \named
   * input: \src/preact-browser.ls
-    output: file: "preact.umd.js" format: \umd exports: \named
+    output: file: "dist/preact.js" format: \umd exports: \named
     external: []
-  * input: \src/preact-node.ls
-    output: file: "preact/index.js" format: \cjs exports: \named
 
 target-list = targets.map -> Object.assign {} default-options, it
 
