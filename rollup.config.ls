@@ -6,7 +6,7 @@ import
 default-options =
   plugins:
     node-resolve jsnext: true extensions: <[.ls .js]>
-    babel require \./.babelrc
+    babel {}
   name: name
   exports: \named sourcemap: true use-strict: false
   external: <[redux preact linking]>

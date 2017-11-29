@@ -103,7 +103,7 @@ function cut-select t
 
   count = 0
   function child
-    count++
+    count += 1
     h \div
   lower = link child, ({count}) -> value: ((count || 0) + 1)%2
 

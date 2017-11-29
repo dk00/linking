@@ -1,5 +1,5 @@
 import
-  redux: {combine-reducers}
+  redux: {create-store, combine-reducers}
   preact: {h, Component, render}
   linking: default: link-factory, side-effect: side-effect-factory
   \./compose-reduce : compose-reduce
